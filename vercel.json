@@ -3,5 +3,10 @@
     "pages/api/wecom.js": {
       "runtime": "nodejs18.x"
     }
+  },
+  "env": {
+    "TARGET_URL": {
+      "description": "Cloudflare Tunnel公网地址或你的域名"
+    }
   }
 }

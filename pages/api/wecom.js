@@ -1,12 +1,20 @@
 // 企业微信消息中转
+// 部署时可配置环境变量
+
 export default async function handler(req, res) {
-  // 本地OpenClaw地址
-  const LOCAL_OPENCLAW = process.env.LOCAL_OPENCLAW || 'http://127.0.0.1:18789';
-  const WEBHOOK_PATH = '/webhooks/wecom';
+  // 从环境变量获取配置（部署时填写）
+  const TARGET_URL = process.env.TARGET_URL;
   const SECRET = process.env.OPENCLAW_SECRET;
   
+  if (!TARGET_URL) {
+    return res.status(500).json({ 
+      error: '请配置环境变量 TARGET_URL',
+      message: '在Vercel后台添加环境变量 TARGET_URL'
+    });
+  }
+  
   try {
-    const response = await fetch(`${LOCAL_OPENCLAW}${WEBHOOK_PATH}`, {
+    const response = await fetch(`${TARGET_URL}/webhooks/wecom`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -16,9 +24,9 @@ export default async function handler(req, res) {
     });
     
     const data = await response.json();
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error) {
     console.error('转发错误:', error);
-    res.status(500).json({ error: '转发失败' });
+    return res.status(500).json({ error: '转发失败: ' + error.message });
   }
 }
