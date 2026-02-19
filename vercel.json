@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "api/wecom.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/wecom",
+      "dest": "/api/wecom.js"
+    }
+  ]
+}
