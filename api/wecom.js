@@ -1,21 +1,9 @@
-// 企业微信消息中转
+// 企业微信消息中转 - 硬编码版本
 module.exports = async function handler(req, res) {
-  let TARGET_URL = process.env.TARGET_URL || '';
+  // 硬编码URL
+  const baseUrl = 'https://communities-december-sullivan-eng.trycloudflare.com';
   
-  // 清理URL，去除空格和多余字符
-  TARGET_URL = TARGET_URL.trim().replace(/\s+/g, '');
-  
-  if (!TARGET_URL) {
-    return res.status(500).json({ error: 'TARGET_URL未配置' });
-  }
-  
-  // 确保URL格式正确
-  if (!TARGET_URL.startsWith('http')) {
-    TARGET_URL = 'https://' + TARGET_URL;
-  }
-  
-  // 正确的URL拼接
-  const baseUrl = TARGET_URL.replace(/\/$/, '');
+  // 构建目标URL
   let targetUrl = baseUrl + '/webhooks/wecom';
   
   // 添加查询参数
@@ -24,7 +12,7 @@ module.exports = async function handler(req, res) {
     targetUrl += '?' + params;
   }
   
-  console.log('最终URL:', targetUrl);
+  console.log('转发到:', targetUrl);
   
   try {
     const response = await fetch(targetUrl, {
