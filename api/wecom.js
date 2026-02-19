@@ -1,19 +1,32 @@
 // 企业微信消息中转
 module.exports = async function handler(req, res) {
-  const TARGET_URL = process.env.TARGET_URL || 'https://communities-december-sullivan-eng.trycloudflare.com';
+  let TARGET_URL = process.env.TARGET_URL || '';
   
-  console.log('收到请求:', JSON.stringify(req.query));
-  console.log('Body:', JSON.stringify(req.body));
+  // 清理URL，去除空格和多余字符
+  TARGET_URL = TARGET_URL.trim().replace(/\s+/g, '');
+  
+  if (!TARGET_URL) {
+    return res.status(500).json({ error: 'TARGET_URL未配置' });
+  }
+  
+  // 确保URL格式正确
+  if (!TARGET_URL.startsWith('http')) {
+    TARGET_URL = 'https://' + TARGET_URL;
+  }
+  
+  // 正确的URL拼接
+  const baseUrl = TARGET_URL.replace(/\/$/, '');
+  let targetUrl = baseUrl + '/webhooks/wecom';
+  
+  // 添加查询参数
+  const params = new URLSearchParams(req.query).toString();
+  if (params) {
+    targetUrl += '?' + params;
+  }
+  
+  console.log('最终URL:', targetUrl);
   
   try {
-    let targetUrl = TARGET_URL.replace(/\/$/, '') + '/webhooks/wecom';
-    const queryParams = new URLSearchParams(req.query).toString();
-    if (queryParams) {
-      targetUrl += '?' + queryParams;
-    }
-    
-    console.log('转发到:', targetUrl);
-    
     const response = await fetch(targetUrl, {
       method: 'POST',
       headers: { 
@@ -23,7 +36,6 @@ module.exports = async function handler(req, res) {
     });
     
     const data = await response.text();
-    console.log('响应:', data);
     res.status(200).send(data);
   } catch (error) {
     console.error('转发失败:', error.message);
