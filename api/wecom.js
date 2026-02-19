@@ -1,41 +1,35 @@
 // 企业微信消息中转
 module.exports = async function handler(req, res) {
-  let TARGET_URL = process.env.TARGET_URL || '';
-  TARGET_URL = TARGET_URL.trim();
+  const TARGET_URL = process.env.TARGET_URL;
   
-  console.log('TARGET_URL:', TARGET_URL);
-  
-  if (!TARGET_URL) {
-    return res.status(500).json({ 
-      error: '请配置环境变量 TARGET_URL',
-      hint: '在Vercel后台添加环境变量 TARGET_URL'
+  // 调试：返回配置状态
+  if (req.query && req.query.debug) {
+    return res.json({ 
+      configured: !!TARGET_URL, 
+      url: TARGET_URL ? '***' : null 
     });
   }
   
-  // 确保URL格式正确
-  let targetUrl = TARGET_URL;
-  if (!targetUrl.startsWith('http')) {
-    targetUrl = 'https://' + targetUrl;
+  if (!TARGET_URL) {
+    return res.status(500).json({ 
+      error: 'TARGET_URL未配置',
+      solution: '在Vercel后台添加环境变量 TARGET_URL'
+    });
   }
-  targetUrl = targetUrl.replace(/\s+/g, '') + '/webhooks/wecom';
-  
-  console.log('转发到:', targetUrl);
   
   try {
+    // 构建目标URL
+    let targetUrl = TARGET_URL.replace(/\/$/, '') + '/webhooks/wecom';
+    
     const response = await fetch(targetUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
     });
     
     const data = await response.json();
     res.status(200).json(data);
   } catch (error) {
-    console.error('转发失败:', error.message);
-    res.status(500).json({ 
-      error: '转发失败: ' + error.message
-    });
+    res.status(500).json({ error: '转发失败: ' + error.message });
   }
 };
