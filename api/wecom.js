@@ -1,21 +1,19 @@
-// 企业微信消息中转 - 硬编码版本
+// 企业微信消息中转
 module.exports = async function handler(req, res) {
-  // 硬编码URL
   const baseUrl = 'https://communities-december-sullivan-eng.trycloudflare.com';
   
-  // 构建目标URL
-  let targetUrl = baseUrl + '/webhooks/wecom';
+  // 使用URL对象正确拼接
+  const url = new URL('/webhooks/wecom', baseUrl);
   
   // 添加查询参数
-  const params = new URLSearchParams(req.query).toString();
-  if (params) {
-    targetUrl += '?' + params;
+  for (const [key, value] of Object.entries(req.query)) {
+    url.searchParams.append(key, value);
   }
   
-  console.log('转发到:', targetUrl);
+  console.log('转发到:', url.toString());
   
   try {
-    const response = await fetch(targetUrl, {
+    const response = await fetch(url.toString(), {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json'
