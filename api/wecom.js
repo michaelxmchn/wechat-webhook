@@ -1,24 +1,9 @@
 // 企业微信消息中转
 module.exports = async function handler(req, res) {
-  const TARGET_URL = process.env.TARGET_URL;
-  
-  // 调试：返回配置状态
-  if (req.query && req.query.debug) {
-    return res.json({ 
-      configured: !!TARGET_URL, 
-      url: TARGET_URL ? '***' : null 
-    });
-  }
-  
-  if (!TARGET_URL) {
-    return res.status(500).json({ 
-      error: 'TARGET_URL未配置',
-      solution: '在Vercel后台添加环境变量 TARGET_URL'
-    });
-  }
+  // 硬编码测试
+  const TARGET_URL = process.env.TARGET_URL || 'https://communities-december-sullivan-eng.trycloudflare.com';
   
   try {
-    // 构建目标URL
     let targetUrl = TARGET_URL.replace(/\/$/, '') + '/webhooks/wecom';
     
     const response = await fetch(targetUrl, {
