@@ -1,13 +1,11 @@
 {
   "name": "wechat-webhook",
   "version": "1.0.0",
-  "private": true,
+  "main": "api/wecom.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "start": "node api/wecom.js"
   },
-  "dependencies": {
-    "next": "14.0.0"
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
